@@ -1,0 +1,49 @@
+version: '3'
+services:
+
+  php_apache:
+    container_name: php_apache
+    build: 
+      context: ./app
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    volumes: 
+      - ./app:/var/www/html
+    networks:
+      - custom_network
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    environment:
+      MYSQL_USER: mydb 
+      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: APTS #^_^ - Make sure to match your db name which the files are created
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./db:/var
+    networks:
+      - custom_network
+    command: bash ./var/execute.sh
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: phpmyadmin
+    restart: always
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    ports:
+      - '8080:80'
+    networks:
+      - custom_network
+
+networks:
+  custom_network: 
+    driver: bridge
