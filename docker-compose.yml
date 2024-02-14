@@ -1,4 +1,4 @@
-version: '3'
+version: '3.8'
 services:
 
   php_apache:
@@ -7,11 +7,9 @@ services:
       context: ./app
       dockerfile: Dockerfile
     ports:
-      - "80:80"
+      - "8080:8082"
     volumes: 
       - ./app:/var/www/html
-    networks:
-      - custom_network
     depends_on:
       - mysql
 
@@ -19,17 +17,15 @@ services:
     image: mysql:latest
     container_name: mysql
     environment:
-      MYSQL_USER: mydb 
-      MYSQL_PASSWORD: password
-      MYSQL_DATABASE: APTS #^_^ - Make sure to match your db name which the files are created
-      MYSQL_ROOT_PASSWORD: password
+     MYSQL_ROOT_PASSWORD: password
     ports:
       - "3306:3306"
     volumes:
-      - ./db:/var
-    networks:
-      - custom_network
-    command: bash ./var/execute.sh
+      - ./db/project.sql:/docker-entrypoint-initdb.d/project.sql
+      - ./db/project1.sql:/docker-entrypoint-initdb.d/project1.sql
+      - ./db/nciipc.sql:/docker-entrypoint-initdb.d/nciipc.sql
+      - ./db/redteam.sql:/docker-entrypoint-initdb.d/redteam.sql
+      - ./db/redteam-2023.sql:/docker-entrypoint-initdb.d/redteam-2023.sql
 
   phpmyadmin:
     image: phpmyadmin:latest
@@ -40,10 +36,4 @@ services:
       PMA_PORT: 3306
       PMA_ARBITRARY: 1
     ports:
-      - '8080:80'
-    networks:
-      - custom_network
-
-networks:
-  custom_network: 
-    driver: bridge
+      - '8081:8081'
