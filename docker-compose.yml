@@ -1,6 +1,6 @@
 version: '3.8'
-services:
 
+services:
   php_apache:
     container_name: php_apache
     build: 
@@ -12,12 +12,15 @@ services:
       - ./app:/var/www/html
     depends_on:
       - mysql
+    networks:
+      custom_network:
+        ipv4_address: 10.0.0.45
 
   mysql:
     image: mysql:latest
     container_name: mysql
     environment:
-     MYSQL_ROOT_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
     ports:
       - "3306:3306"
     volumes:
@@ -25,7 +28,10 @@ services:
       - ./db/project1.sql:/docker-entrypoint-initdb.d/project1.sql
       - ./db/nciipc.sql:/docker-entrypoint-initdb.d/nciipc.sql
       - ./db/redteam.sql:/docker-entrypoint-initdb.d/redteam.sql
-      - ./db/redteam-2023.sql:/docker-entrypoint-initdb.d/redteam-2023.sql
+      - ./db/redteam_2023.sql:/docker-entrypoint-initdb.d/redteam_2023.sql
+    networks:
+      custom_network:
+        ipv4_address: 10.0.0.61
 
   phpmyadmin:
     image: phpmyadmin:latest
@@ -37,3 +43,13 @@ services:
       PMA_ARBITRARY: 1
     ports:
       - '8081:8081'
+    networks:
+      custom_network:
+        ipv4_address: 10.0.0.64
+
+networks:
+  custom_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.0.0.0/24
